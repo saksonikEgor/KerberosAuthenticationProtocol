@@ -27,11 +27,12 @@ public class AuthenticationServer {
     private static final int PORT = ApplicationProperties.AUTHENTICATION_SERVER_PORT;
     private final long authServerId = ApplicationProperties.AUTH_SERVER_ID;
     private long clientId;
-//    private final Cipher grantedServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_AUTH_AND_GRANTED_SERVERS;
-private final Cipher grantedServerSharedKey = ApplicationProperties.getSharedKeyBetweenAuthAndGrantedServers();
+    //    private final Cipher grantedServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_AUTH_AND_GRANTED_SERVERS;
+    private final Cipher grantedServerSharedKey = ApplicationProperties.getSharedKeyBetweenAuthAndGrantedServers();
     private Cipher clientSharedKey;
     private ServerSocket serverSocket;
-    private static final java.util.logging.Logger LOGGER =  Logger.getLogger("com.something");
+    private static final java.util.logging.Logger LOGGER = Logger.getLogger("com.something");
+
     public AuthenticationServer() throws InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         try {
 
@@ -68,13 +69,12 @@ private final Cipher grantedServerSharedKey = ApplicationProperties.getSharedKey
             extractClientSharedKey(request);
             AuthenticationServerResponse response = makeResponse(request);
 
-            try (ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream())) {
-                oos.writeObject(response);
-            }
+            ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
+            oos.writeObject(response);
 
             LOGGER.info("Auth server || sending response to the client: " + response);
         } catch (IOException | IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException |
-                 NoSuchAlgorithmException | InvalidKeyException e) {
+                 NoSuchAlgorithmException | InvalidKeyException | InvalidAlgorithmParameterException e) {
             throw new RuntimeException(e);
         }
     }
@@ -82,7 +82,8 @@ private final Cipher grantedServerSharedKey = ApplicationProperties.getSharedKey
     private AuthenticationServerRequest getRequest(InputStream inputStream) {
         AuthenticationServerRequest request = null;
 
-        try (ObjectInputStream oos = new ObjectInputStream(inputStream)) {
+        try {
+            ObjectInputStream oos = new ObjectInputStream(inputStream);
             request = (AuthenticationServerRequest) oos.readObject();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -103,7 +104,7 @@ private final Cipher grantedServerSharedKey = ApplicationProperties.getSharedKey
     }
 
     private void extractClientSharedKey(AuthenticationServerRequest request) throws IllegalBlockSizeException,
-            BadPaddingException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+            BadPaddingException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException {
         clientId = CoderUtils.decryptToLong(request.clientIdFromGrantedServer(), grantedServerSharedKey);
         clientSharedKey = CoderUtils.decryptToKey(request.clientAndAuthServerSharesKeyFromGrantedServer(), grantedServerSharedKey);
     }

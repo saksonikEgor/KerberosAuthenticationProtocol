@@ -89,7 +89,8 @@ private final Cipher grantedServerSharedKey = ApplicationProperties.getSharedKey
                 ThreadLocalRandom.current().nextInt()
         );
 
-        try (ObjectOutputStream oos = new ObjectOutputStream(grantedServerSocket.getOutputStream())) {
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(grantedServerSocket.getOutputStream());
             oos.writeObject(request);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -99,7 +100,8 @@ private final Cipher grantedServerSharedKey = ApplicationProperties.getSharedKey
     private GrantedServerResponse getGrantedServerResponse() {
         GrantedServerResponse response = null;
 
-        try (ObjectInputStream oos = new ObjectInputStream(grantedServerSocket.getInputStream())) {
+        try {
+            ObjectInputStream oos = new ObjectInputStream(grantedServerSocket.getInputStream());
             response = (GrantedServerResponse) oos.readObject();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -114,7 +116,7 @@ private final Cipher grantedServerSharedKey = ApplicationProperties.getSharedKey
         try {
             return CoderUtils.decryptToKey(response.clientAndAuthServerSharedKeyForClient(), grantedServerSharedKey);
         } catch (IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException
-                 | NoSuchAlgorithmException | InvalidKeyException e) {
+                 | NoSuchAlgorithmException | InvalidKeyException | InvalidAlgorithmParameterException e) {
             throw new RuntimeException(e);
         }
     }
@@ -126,7 +128,9 @@ private final Cipher grantedServerSharedKey = ApplicationProperties.getSharedKey
     private void sendAuthServerRequest(GrantedServerResponse response) {
         LOGGER.info("Client || sending request to the Auth server");
 
-        try (ObjectOutputStream oos = new ObjectOutputStream(authServerSocket.getOutputStream())) {
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(authServerSocket.getOutputStream());
+
             AuthenticationServerRequest request = new AuthenticationServerRequest(
                     CoderUtils.encryptLong(clientId, authServerSharedKey),
                     CoderUtils.encryptLong(getTimeStamp(), authServerSharedKey),
@@ -148,7 +152,8 @@ private final Cipher grantedServerSharedKey = ApplicationProperties.getSharedKey
     private AuthenticationServerResponse getAuthServerResponse() {
         AuthenticationServerResponse response = null;
 
-        try (ObjectInputStream oos = new ObjectInputStream(authServerSocket.getInputStream())) {
+        try {
+            ObjectInputStream oos = new ObjectInputStream(authServerSocket.getInputStream());
             response = (AuthenticationServerResponse) oos.readObject();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);

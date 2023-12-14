@@ -4,9 +4,11 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -17,15 +19,6 @@ public class CoderUtils {
     }
 
     public static byte[] encryptString(String message, Cipher cipher) throws Exception {
-//        byte[] secretKey = "9mng65v8jf4lxn93nabf981m".getBytes();
-//        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, "TripleDES");
-//
-//        byte[] iv = "a76nb5h9".getBytes();
-//        IvParameterSpec ivSpec = new IvParameterSpec(iv);
-
-//        Cipher encryptCipher = Cipher.getInstance("TripleDES/CBC/PKCS5Padding");
-//        encryptCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivSpec);
-
         byte[] secretMessagesBytes = message.getBytes(StandardCharsets.UTF_8);
         byte[] encryptedMessageBytes = cipher.doFinal(secretMessagesBytes);
 
@@ -49,8 +42,8 @@ public class CoderUtils {
     }
 
     public static String decryptToString(byte[] message, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException {
-//        Cipher decryptCipher = Cipher.getInstance("TripleDES/CBC/PKCS5Padding");
-//        decryptCipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivSpec);
+//        cipher.
+
 
         byte[] decryptedMessageBytes = cipher.doFinal(Base64.getDecoder().decode(message));
 
@@ -71,28 +64,30 @@ public class CoderUtils {
 
     public static Cipher decryptToKey(byte[] key, Cipher cipher)
             throws IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
-            NoSuchAlgorithmException, InvalidKeyException {
+            NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException {
         String decryptedKey = decryptToString(key, cipher);
+
+        System.out.println("KEY = " + decryptedKey);
 
         byte[] secretKey = decryptedKey.getBytes();
         SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, "TripleDES");
 
-//        byte[] iv = "a76nb5h9".getBytes();
-//        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        byte[] iv = "a76nb5h9".getBytes();
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
 
         Cipher encryptCipher = Cipher.getInstance("TripleDES/CBC/PKCS5Padding");
-        encryptCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+        encryptCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivSpec);
 
         return encryptCipher;
     }
 
-    public static Cipher createKeyByString(String seed) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
-        byte[] secretKey = seed.getBytes();
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, "TripleDES");
-
-        Cipher encryptCipher = Cipher.getInstance("TripleDES/CBC/PKCS5Padding");
-        encryptCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
-
-        return encryptCipher;
-    }
+//    private static Cipher createKeyByString(String seed) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+//        byte[] secretKey = seed.getBytes();
+//        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, "TripleDES");
+//
+//        Cipher encryptCipher = Cipher.getInstance("TripleDES/CBC/PKCS5Padding");
+//        encryptCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+//
+//        return encryptCipher;
+//    }
 }

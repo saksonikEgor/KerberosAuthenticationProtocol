@@ -24,12 +24,12 @@ import java.util.logging.Logger;
 
 public class GrantedServer {
     private static final int PORT = ApplicationProperties.GRANTED_SERVER_PORT;
-//    private final Cipher clientSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_CLIENT_AND_GRANTED_SERVER;
+    //    private final Cipher clientSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_CLIENT_AND_GRANTED_SERVER;
 //    private final Cipher authServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_AUTH_AND_GRANTED_SERVERS;
-private final Cipher clientSharedKey = ApplicationProperties.getSharedKeyBetweenClientAndGrantedServer();
+    private final Cipher clientSharedKey = ApplicationProperties.getSharedKeyBetweenClientAndGrantedServer();
     private final Cipher authServerSharedKey = ApplicationProperties.getSharedKeyBetweenAuthAndGrantedServers();
     private ServerSocket serverSocket;
-    private static final java.util.logging.Logger LOGGER =  Logger.getLogger("com.something");
+    private static final java.util.logging.Logger LOGGER = Logger.getLogger("com.something");
     private final int validPeriod = ApplicationProperties.VALID_PERIOD;
 
     public GrantedServer() throws InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
@@ -67,9 +67,9 @@ private final Cipher clientSharedKey = ApplicationProperties.getSharedKeyBetween
             GrantedServerRequest request = getRequest(client.getInputStream());
             GrantedServerResponse response = makeResponse(request);
 
-            try (ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream())) {
-                oos.writeObject(response);
-            }
+            ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
+            oos.writeObject(response);
+
 
             LOGGER.info("Granted server || sending response to the client: " + response);
         } catch (Exception e) {
@@ -80,7 +80,8 @@ private final Cipher clientSharedKey = ApplicationProperties.getSharedKeyBetween
     private GrantedServerRequest getRequest(InputStream inputStream) {
         GrantedServerRequest request = null;
 
-        try (ObjectInputStream oos = new ObjectInputStream(inputStream)) {
+        try {
+            ObjectInputStream oos = new ObjectInputStream(inputStream);
             request = (GrantedServerRequest) oos.readObject();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
