@@ -18,7 +18,9 @@ public class CoderUtils {
 
     }
 
-    public static byte[] encryptString(String message, Cipher cipher) throws Exception {
+    public static byte[] encryptString(String message, String key) throws Exception {
+        Cipher cipher = getEncryptCipher(key);
+
         byte[] secretMessagesBytes = message.getBytes(StandardCharsets.UTF_8);
         byte[] encryptedMessageBytes = cipher.doFinal(secretMessagesBytes);
 
@@ -26,52 +28,71 @@ public class CoderUtils {
         return Base64.getEncoder().encode(encryptedMessageBytes);
     }
 
-    public static byte[] encryptLong(long number, Cipher cipher)
-            throws IllegalBlockSizeException, BadPaddingException {
+    public static byte[] encryptLong(long number, String key)
+            throws IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+        Cipher cipher = getEncryptCipher(key);
+
         byte[] secretMessagesBytes = Long.toBinaryString(number).getBytes(StandardCharsets.UTF_8);
         byte[] encryptedMessageBytes = cipher.doFinal(secretMessagesBytes);
 
         return Base64.getEncoder().encode(encryptedMessageBytes);
     }
 
-    public static byte[] encryptInteger(int number, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException {
+    public static byte[] encryptInteger(int number, String key) throws IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+        Cipher cipher = getEncryptCipher(key);
+
         byte[] secretMessagesBytes = Integer.toBinaryString(number).getBytes(StandardCharsets.UTF_8);
         byte[] encryptedMessageBytes = cipher.doFinal(secretMessagesBytes);
 
         return Base64.getEncoder().encode(encryptedMessageBytes);
     }
 
-    public static String decryptToString(byte[] message, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException {
-//        cipher.
+    public static String decryptToString(byte[] message, String key) throws IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+        Cipher cipher = getDencryptCipher(key);
 
 
         byte[] decryptedMessageBytes = cipher.doFinal(Base64.getDecoder().decode(message));
-
         return new String(decryptedMessageBytes, StandardCharsets.UTF_8);
     }
 
-    public static long decryptToLong(byte[] number, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException {
-        byte[] decryptNumberBytes = cipher.doFinal(Base64.getDecoder().decode(number));
+    public static long decryptToLong(byte[] number, String key) throws IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+        Cipher cipher = getDencryptCipher(key);
 
+        byte[] decryptNumberBytes = cipher.doFinal(Base64.getDecoder().decode(number));
         return ByteBuffer.wrap(decryptNumberBytes).getLong();
     }
 
-    public static int decryptToInteger(byte[] number, Cipher cipher) throws IllegalBlockSizeException, BadPaddingException {
-        byte[] decryptNumberBytes = cipher.doFinal(Base64.getDecoder().decode(number));
+    public static int decryptToInteger(byte[] number, String key) throws IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+        Cipher cipher = getDencryptCipher(key);
 
+        byte[] decryptNumberBytes = cipher.doFinal(Base64.getDecoder().decode(number));
         return ByteBuffer.wrap(decryptNumberBytes).getInt();
     }
 
-    public static Cipher decryptToKey(byte[] key, Cipher cipher)
+    public static String decryptToKey(byte[] encodedKey, String key)
             throws IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
             NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException {
-        String decryptedKey = decryptToString(key, cipher);
 
-        System.out.println("KEY = " + decryptedKey);
+        String decryptedKey = decryptToString(encodedKey, key);
 
-        byte[] secretKey = decryptedKey.getBytes();
+//        System.out.println("KEY = " + decryptedKey);
+//
+//        byte[] secretKey = decryptedKey.getBytes();
+//        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, "TripleDES");
+//
+//        byte[] iv = "a76nb5h9".getBytes();
+//        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+//
+//        Cipher encryptCipher = Cipher.getInstance("TripleDES/CBC/PKCS5Padding");
+//        encryptCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivSpec);
+
+        return decryptedKey;
+    }
+
+    private static Cipher getEncryptCipher(String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException {
+        byte[] secretKey = key.getBytes();
+
         SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, "TripleDES");
-
         byte[] iv = "a76nb5h9".getBytes();
         IvParameterSpec ivSpec = new IvParameterSpec(iv);
 
@@ -79,6 +100,19 @@ public class CoderUtils {
         encryptCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivSpec);
 
         return encryptCipher;
+    }
+
+    private static Cipher getDencryptCipher(String key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException {
+        byte[] secretKey = key.getBytes();
+
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, "TripleDES");
+        byte[] iv = "a76nb5h9".getBytes();
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+        Cipher decryptCipher = Cipher.getInstance("TripleDES/CBC/PKCS5Padding");
+        decryptCipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivSpec);
+
+        return decryptCipher;
     }
 
 //    private static Cipher createKeyByString(String seed) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {

@@ -39,7 +39,7 @@ public class Main {
 
 
         System.out.println("_________");
-        System.out.println(ApplicationProperties.getSharedKeyBetweenClientAndGrantedServer());
-        System.out.println(ApplicationProperties.getSharedKeyBetweenAuthAndGrantedServers());
+//        System.out.println(ApplicationProperties.getSharedKeyBetweenClientAndGrantedServer());
+//        System.out.println(ApplicationProperties.getSharedKeyBetweenAuthAndGrantedServers());
     }
 }

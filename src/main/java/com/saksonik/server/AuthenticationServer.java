@@ -28,8 +28,8 @@ public class AuthenticationServer {
     private final long authServerId = ApplicationProperties.AUTH_SERVER_ID;
     private long clientId;
     //    private final Cipher grantedServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_AUTH_AND_GRANTED_SERVERS;
-    private final Cipher grantedServerSharedKey = ApplicationProperties.getSharedKeyBetweenAuthAndGrantedServers();
-    private Cipher clientSharedKey;
+    private final String grantedServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_AUTH_AND_GRANTED_SERVERS;
+    private String clientSharedKey;
     private ServerSocket serverSocket;
     private static final java.util.logging.Logger LOGGER = Logger.getLogger("com.something");
 
@@ -94,7 +94,7 @@ public class AuthenticationServer {
     }
 
     private AuthenticationServerResponse makeResponse(AuthenticationServerRequest request) throws
-            IllegalBlockSizeException, BadPaddingException {
+            IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         return new AuthenticationServerResponse(
                 CoderUtils.encryptLong(
                         CoderUtils.decryptToLong(request.timeStampFromClient(), clientSharedKey),

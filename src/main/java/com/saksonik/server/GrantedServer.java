@@ -26,8 +26,8 @@ public class GrantedServer {
     private static final int PORT = ApplicationProperties.GRANTED_SERVER_PORT;
     //    private final Cipher clientSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_CLIENT_AND_GRANTED_SERVER;
 //    private final Cipher authServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_AUTH_AND_GRANTED_SERVERS;
-    private final Cipher clientSharedKey = ApplicationProperties.getSharedKeyBetweenClientAndGrantedServer();
-    private final Cipher authServerSharedKey = ApplicationProperties.getSharedKeyBetweenAuthAndGrantedServers();
+    private final String clientSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_CLIENT_AND_GRANTED_SERVER;
+    private final String authServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_AUTH_AND_GRANTED_SERVERS;
     private ServerSocket serverSocket;
     private static final java.util.logging.Logger LOGGER = Logger.getLogger("com.something");
     private final int validPeriod = ApplicationProperties.VALID_PERIOD;

@@ -6,7 +6,6 @@ import com.saksonik.model.GrantedServerRequest;
 import com.saksonik.model.GrantedServerResponse;
 import com.saksonik.properties.ApplicationProperties;
 import com.saksonik.utils.CoderUtils;
-import org.apache.logging.log4j.LogManager;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -23,20 +22,19 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Client {
     private final long clientId = ApplicationProperties.CLIENT_ID;
-//    private final Cipher grantedServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_CLIENT_AND_GRANTED_SERVER;
-private final Cipher grantedServerSharedKey = ApplicationProperties.getSharedKeyBetweenClientAndGrantedServer();
-    private Cipher authServerSharedKey;
+    //    private final Cipher grantedServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_CLIENT_AND_GRANTED_SERVER;
+    private final String grantedServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_CLIENT_AND_GRANTED_SERVER;
+    private String authServerSharedKey;
     private final int authServerPort = ApplicationProperties.AUTHENTICATION_SERVER_PORT;
     private final int grantedServerPort = ApplicationProperties.GRANTED_SERVER_PORT;
     private Socket authServerSocket;
     private Socket grantedServerSocket;
-    private static final Logger LOGGER =  Logger.getLogger("com.something");
+    private static final Logger LOGGER = Logger.getLogger("com.something");
 //    private static final Logger LOGGER = LogManager.getLogger();
 
     public Client() throws InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
@@ -112,7 +110,7 @@ private final Cipher grantedServerSharedKey = ApplicationProperties.getSharedKey
         return response;
     }
 
-    private Cipher extractAuthServerSharedKeyFromResponse(GrantedServerResponse response) {
+    private String extractAuthServerSharedKeyFromResponse(GrantedServerResponse response) {
         try {
             return CoderUtils.decryptToKey(response.clientAndAuthServerSharedKeyForClient(), grantedServerSharedKey);
         } catch (IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException
@@ -144,7 +142,8 @@ private final Cipher grantedServerSharedKey = ApplicationProperties.getSharedKey
             );
 
             oos.writeObject(request);
-        } catch (IOException | IllegalBlockSizeException | BadPaddingException e) {
+        } catch (IOException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException |
+                 NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
             throw new RuntimeException(e);
         }
     }
@@ -166,7 +165,8 @@ private final Cipher grantedServerSharedKey = ApplicationProperties.getSharedKey
     private long extractTimeStamp(AuthenticationServerResponse response) {
         try {
             return CoderUtils.decryptToLong(response.timeStamp(), authServerSharedKey);
-        } catch (IllegalBlockSizeException | BadPaddingException e) {
+        } catch (IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException |
+                 NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
             throw new RuntimeException(e);
         }
     }
