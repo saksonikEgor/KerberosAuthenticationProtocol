@@ -17,6 +17,7 @@ import java.net.Socket;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -92,7 +93,15 @@ public class AuthenticationServer {
     }
 
     private AuthenticationServerResponse makeResponse(AuthenticationServerRequest request) throws
-            IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+            IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
+            NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+
+//        LOGGER.fine("timeStamp = " + Arrays.toString(request.timeStampFromClient()));
+//        LOGGER.fine("decrypted timeStamp = " + CoderUtils.decryptToLong(request.timeStampFromClient(), clientSharedKey));
+//        LOGGER.fine("encrypted timeStamp = " + Arrays.toString(CoderUtils.encryptLong(
+//                CoderUtils.decryptToLong(request.timeStampFromClient(), clientSharedKey),
+//                clientSharedKey
+//        )));
         return new AuthenticationServerResponse(
                 CoderUtils.encryptLong(
                         CoderUtils.decryptToLong(request.timeStampFromClient(), clientSharedKey),

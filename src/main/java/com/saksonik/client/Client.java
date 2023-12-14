@@ -19,6 +19,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
@@ -113,10 +114,23 @@ public class Client {
     }
 
     private void sendAuthServerRequest(GrantedServerResponse response) {
-        LOGGER.fine("Client || sending request to the Auth server");
-
         setTimeStamp();
-        LOGGER.fine("Client || setting time stamp:" + timeStamp);
+        LOGGER.fine("Client || setting time stamp: " + timeStamp);
+
+
+//        try {
+//            LOGGER.fine("decrypt / ecnrypt timestamp: " + CoderUtils.decryptToLong(
+//                    CoderUtils.encryptLong(timeStamp, authServerSharedKey),
+//                    authServerSharedKey
+//            ));
+//        } catch (IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException |
+//                 NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
+//            throw new RuntimeException(e);
+//        }
+
+
+
+        LOGGER.fine("Client || sending request to the Auth server");
 
         try {
             ObjectOutputStream oos = new ObjectOutputStream(authServerSocket.getOutputStream());

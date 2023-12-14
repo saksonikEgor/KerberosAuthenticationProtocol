@@ -1,6 +1,9 @@
 package com.saksonik;
 
+import com.saksonik.client.Client;
 import com.saksonik.properties.ApplicationProperties;
+import com.saksonik.server.AuthenticationServer;
+import com.saksonik.server.GrantedServer;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -16,30 +19,24 @@ import java.util.Arrays;
 import java.util.Base64;
 
 public class Main {
-    public static void main(String[] args) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-        byte[] secretKey = "9mng65v8jf4lxn93nabf981m".getBytes();
+    public static void main(String[] args) throws InterruptedException {
+        AuthenticationServer authenticationServer = new AuthenticationServer();
+        GrantedServer grantedServer = new GrantedServer();
+        Thread authThread = new Thread(authenticationServer::start);
+        Thread grantedThread = new Thread(grantedServer::start);
 
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, "TripleDES");
-        byte[] iv = "a76nb5h9".getBytes();
-        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        authThread.start();
+        grantedThread.start();
 
-        String secretMessage = "Baeldung secret message";
-        Cipher encryptCipher = Cipher.getInstance("TripleDES/CBC/PKCS5Padding");
-        encryptCipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivSpec);
+        Thread.sleep(1000);
 
-        byte[] secretMessagesBytes = secretMessage.getBytes(StandardCharsets.UTF_8);
-        byte[] encryptedMessageBytes = encryptCipher.doFinal(secretMessagesBytes);
+        Client client = new Client();
+        Thread clientThread = new Thread(client::authenticate);
 
-        String encodedMessage = Base64.getEncoder().encodeToString(encryptedMessageBytes);
-
-        System.out.println("message = " + secretMessage);
-        System.out.println("messageBytes = " + Arrays.toString(secretMessagesBytes));
-        System.out.println("encryptedMessageBytes = " + Arrays.toString(encryptedMessageBytes));
-        System.out.println(encodedMessage);
+        clientThread.start();
+        clientThread.join();
 
 
-        System.out.println("_________");
-//        System.out.println(ApplicationProperties.getSharedKeyBetweenClientAndGrantedServer());
-//        System.out.println(ApplicationProperties.getSharedKeyBetweenAuthAndGrantedServers());
+
     }
 }

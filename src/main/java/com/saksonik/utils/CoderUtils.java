@@ -6,7 +6,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -56,14 +55,14 @@ public class CoderUtils {
             BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException,
             NoSuchAlgorithmException, InvalidKeyException {
         byte[] decryptNumberBytes = getDencryptCipher(key).doFinal(Base64.getDecoder().decode(number));
-        return ByteBuffer.wrap(decryptNumberBytes).getLong();
+        return Long.parseLong(new String(decryptNumberBytes, StandardCharsets.UTF_8), 2);
     }
 
     public static int decryptToInteger(byte[] number, String key) throws IllegalBlockSizeException,
             BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException,
             NoSuchAlgorithmException, InvalidKeyException {
         byte[] decryptNumberBytes = getDencryptCipher(key).doFinal(Base64.getDecoder().decode(number));
-        return ByteBuffer.wrap(decryptNumberBytes).getInt();
+        return Integer.parseInt(new String(decryptNumberBytes, StandardCharsets.UTF_8), 2);
     }
 
     public static String decryptToKey(byte[] encodedKey, String key)
