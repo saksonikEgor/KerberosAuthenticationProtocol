@@ -11,7 +11,7 @@ public class RandomUtils {
     public static String getRandomString() {
         final int leftLimit = 97; // letter 'a'
         final int rightLimit = 122; // letter 'z'
-        final int targetStringLength = 10;
+        final int targetStringLength = 24;
 
         return RANDOM.ints(leftLimit, rightLimit + 1)
                 .limit(targetStringLength)

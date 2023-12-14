@@ -11,8 +11,6 @@ public record GrantedServerResponse(
         byte[] clientAndAuthServerSharedKeyForServer,
         byte[] clientIdForServer,
         byte[] validPeriodForServer
-//        String encodedClientPart,
-//        String encodedAuthServerPart
 ) implements Serializable {
     @Override
     public String toString() {

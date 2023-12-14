@@ -10,8 +10,6 @@ public record AuthenticationServerRequest(
         byte[] clientAndAuthServerSharesKeyFromGrantedServer,
         byte[] clientIdFromGrantedServer,
         byte[] validPeriodFromGrantedServer
-//        String encodedAuthServerPart,
-//        String encodedClientPart
 ) implements Serializable {
     @Override
     public String toString() {

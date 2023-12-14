@@ -8,7 +8,6 @@ import com.saksonik.properties.ApplicationProperties;
 import com.saksonik.utils.CoderUtils;
 
 import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
@@ -27,37 +26,27 @@ import java.util.logging.Logger;
 
 public class Client {
     private final long clientId = ApplicationProperties.CLIENT_ID;
-    //    private final Cipher grantedServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_CLIENT_AND_GRANTED_SERVER;
     private final String grantedServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_CLIENT_AND_GRANTED_SERVER;
     private String authServerSharedKey;
     private final int authServerPort = ApplicationProperties.AUTHENTICATION_SERVER_PORT;
     private final int grantedServerPort = ApplicationProperties.GRANTED_SERVER_PORT;
     private Socket authServerSocket;
     private Socket grantedServerSocket;
+    private long timeStamp;
     private static final Logger LOGGER = Logger.getLogger("com.something");
 //    private static final Logger LOGGER = LogManager.getLogger();
 
-    public Client() throws InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public Client() {
         try {
-//            String loggerName = "com.something";
-//            Logger log = Logger.getLogger(loggerName);
-
-
             ConsoleHandler handler = new ConsoleHandler();
             handler.setLevel(Level.ALL);
             LOGGER.addHandler(handler);
             LOGGER.setLevel(Level.ALL);
-//            LOGGER.info("some info");
-
-
-//            LOGGER.fine("just testing");
-
 
             authServerSocket = new Socket(InetAddress.getLocalHost(), authServerPort);
             grantedServerSocket = new Socket(InetAddress.getLocalHost(), grantedServerPort);
         } catch (IOException e) {
             throw new RuntimeException(e);
-//            LOGGER.error(e);
         }
     }
 
@@ -69,17 +58,17 @@ public class Client {
         GrantedServerResponse grantedServerResponse = getGrantedServerResponse();
 
         authServerSharedKey = extractAuthServerSharedKeyFromResponse(grantedServerResponse);
-        LOGGER.info("Client || getting Auth server shared key for Grand server = " + authServerSharedKey);
+        LOGGER.fine("Client || getting Auth server shared key for Grand server = " + authServerSharedKey);
 
         sendAuthServerRequest(grantedServerResponse);
         AuthenticationServerResponse authenticationServerResponse = getAuthServerResponse();
 
         long encryptedTimeStamp = extractTimeStamp(authenticationServerResponse);
-        LOGGER.info("Client || encrypted Auth server timeStamp = " + encryptedTimeStamp);
+        LOGGER.fine("Client || encrypted Auth server timeStamp = " + encryptedTimeStamp);
     }
 
     private void sendGrantedServerRequest(long authServerId) {
-        LOGGER.info("Client || sending request to the Granted server");
+        LOGGER.fine("Client || sending request to the Granted server");
 
         GrantedServerRequest request = new GrantedServerRequest(
                 clientId,
@@ -105,7 +94,7 @@ public class Client {
             throw new RuntimeException(e);
         }
 
-        LOGGER.info("Client || getting response form the Granted server: " + response);
+        LOGGER.fine("Client || getting response form the Granted server: " + response);
 
         return response;
     }
@@ -119,19 +108,22 @@ public class Client {
         }
     }
 
-    private long getTimeStamp() {
-        return Instant.now().toEpochMilli();
+    private void setTimeStamp() {
+        timeStamp = Instant.now().toEpochMilli();
     }
 
     private void sendAuthServerRequest(GrantedServerResponse response) {
-        LOGGER.info("Client || sending request to the Auth server");
+        LOGGER.fine("Client || sending request to the Auth server");
+
+        setTimeStamp();
+        LOGGER.fine("Client || setting time stamp:" + timeStamp);
 
         try {
             ObjectOutputStream oos = new ObjectOutputStream(authServerSocket.getOutputStream());
 
             AuthenticationServerRequest request = new AuthenticationServerRequest(
                     CoderUtils.encryptLong(clientId, authServerSharedKey),
-                    CoderUtils.encryptLong(getTimeStamp(), authServerSharedKey),
+                    CoderUtils.encryptLong(timeStamp, authServerSharedKey),
                     CoderUtils.encryptInteger(
                             CoderUtils.decryptToInteger(response.validPeriodForClient(), grantedServerSharedKey),
                             authServerSharedKey
@@ -158,7 +150,7 @@ public class Client {
             throw new RuntimeException(e);
         }
 
-        LOGGER.info("Client || getting response form the Auth server: " + response);
+        LOGGER.fine("Client || getting response form the Auth server: " + response);
         return response;
     }
 
@@ -171,7 +163,7 @@ public class Client {
         }
     }
 
-    public static void main(String[] args) throws InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public static void main(String[] args) {
         Client client = new Client();
         client.authenticate();
     }

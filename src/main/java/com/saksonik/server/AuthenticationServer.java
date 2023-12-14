@@ -4,10 +4,8 @@ import com.saksonik.model.AuthenticationServerRequest;
 import com.saksonik.model.AuthenticationServerResponse;
 import com.saksonik.properties.ApplicationProperties;
 import com.saksonik.utils.CoderUtils;
-import org.apache.logging.log4j.LogManager;
 
 import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
@@ -27,20 +25,17 @@ public class AuthenticationServer {
     private static final int PORT = ApplicationProperties.AUTHENTICATION_SERVER_PORT;
     private final long authServerId = ApplicationProperties.AUTH_SERVER_ID;
     private long clientId;
-    //    private final Cipher grantedServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_AUTH_AND_GRANTED_SERVERS;
     private final String grantedServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_AUTH_AND_GRANTED_SERVERS;
     private String clientSharedKey;
     private ServerSocket serverSocket;
     private static final java.util.logging.Logger LOGGER = Logger.getLogger("com.something");
 
-    public AuthenticationServer() throws InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public AuthenticationServer() {
         try {
-
             ConsoleHandler handler = new ConsoleHandler();
             handler.setLevel(Level.ALL);
             LOGGER.addHandler(handler);
             LOGGER.setLevel(Level.ALL);
-
 
             serverSocket = new ServerSocket(PORT);
         } catch (IOException e) {
@@ -49,7 +44,7 @@ public class AuthenticationServer {
     }
 
     public void start() {
-        LOGGER.info("Auth server || started");
+        LOGGER.fine("Auth server || started");
 
         while (true) {
             try {
@@ -67,12 +62,15 @@ public class AuthenticationServer {
         try {
             AuthenticationServerRequest request = getRequest(client.getInputStream());
             extractClientSharedKey(request);
+
+            LOGGER.fine("Auth server || received shared key from the client: " + clientSharedKey);
+
             AuthenticationServerResponse response = makeResponse(request);
 
             ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
             oos.writeObject(response);
 
-            LOGGER.info("Auth server || sending response to the client: " + response);
+            LOGGER.fine("Auth server || sending response to the client: " + response);
         } catch (IOException | IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException |
                  NoSuchAlgorithmException | InvalidKeyException | InvalidAlgorithmParameterException e) {
             throw new RuntimeException(e);
@@ -89,7 +87,7 @@ public class AuthenticationServer {
             throw new RuntimeException(e);
         }
 
-        LOGGER.info("Auth server || receive request from the client: " + request);
+        LOGGER.fine("Auth server || receive request from the client: " + request);
         return request;
     }
 
@@ -109,7 +107,7 @@ public class AuthenticationServer {
         clientSharedKey = CoderUtils.decryptToKey(request.clientAndAuthServerSharesKeyFromGrantedServer(), grantedServerSharedKey);
     }
 
-    public static void main(String[] args) throws InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public static void main(String[] args) {
         AuthenticationServer authenticationServer = new AuthenticationServer();
         authenticationServer.start();
     }

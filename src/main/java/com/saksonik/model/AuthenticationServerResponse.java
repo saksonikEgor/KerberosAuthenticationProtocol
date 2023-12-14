@@ -5,7 +5,6 @@ import java.util.Arrays;
 
 public record AuthenticationServerResponse(
         byte[] timeStamp
-//        String encodedTimeStamp
 ) implements Serializable {
     @Override
     public String toString() {
