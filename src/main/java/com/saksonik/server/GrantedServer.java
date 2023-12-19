@@ -18,11 +18,11 @@ import java.util.logging.Logger;
 
 public class GrantedServer {
     private static final int PORT = ApplicationProperties.GRANTED_SERVER_PORT;
+    private static final java.util.logging.Logger LOGGER = Logger.getLogger("com.something");
     private final String clientSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_CLIENT_AND_GRANTED_SERVER;
     private final String authServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_AUTH_AND_GRANTED_SERVERS;
-    private ServerSocket serverSocket;
-    private static final java.util.logging.Logger LOGGER = Logger.getLogger("com.something");
     private final int validPeriod = ApplicationProperties.VALID_PERIOD;
+    private ServerSocket serverSocket;
 
     public GrantedServer() {
         try {
@@ -35,6 +35,11 @@ public class GrantedServer {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void main(String[] args) {
+        GrantedServer grantedServer = new GrantedServer();
+        grantedServer.start();
     }
 
     public void start() {
@@ -95,10 +100,5 @@ public class GrantedServer {
                 CoderUtils.encryptLong(request.clientId(), authServerSharedKey),
                 CoderUtils.encryptInteger(validPeriod, authServerSharedKey)
         );
-    }
-
-    public static void main(String[] args) {
-        GrantedServer grantedServer = new GrantedServer();
-        grantedServer.start();
     }
 }

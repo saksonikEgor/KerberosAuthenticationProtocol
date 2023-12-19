@@ -14,11 +14,11 @@ public record AuthenticationServerRequest(
     @Override
     public String toString() {
         return "{"
-                + "clientIdFromClient=" + Arrays.toString(clientIdFromClient) + ", "
-                + "timeStampFromClient=" + Arrays.toString(timeStampFromClient) + ", "
-                + "validPeriodFromClient=" + Arrays.toString(validPeriodFromClient) + ", "
-                + "clientAndAuthServerSharesKeyFromGrantedServer=" + Arrays.toString(clientAndAuthServerSharesKeyFromGrantedServer) + ", "
-                + "clientIdFromGrantedServer=" + Arrays.toString(clientIdFromGrantedServer) + ", "
+                + "clientIdFromClient=" + Arrays.toString(clientIdFromClient) + ", \n"
+                + "timeStampFromClient=" + Arrays.toString(timeStampFromClient) + ", \n"
+                + "validPeriodFromClient=" + Arrays.toString(validPeriodFromClient) + ", \n"
+                + "clientAndAuthServerSharesKeyFromGrantedServer=" + Arrays.toString(clientAndAuthServerSharesKeyFromGrantedServer) + ", \n"
+                + "clientIdFromGrantedServer=" + Arrays.toString(clientIdFromGrantedServer) + ", \n"
                 + "validPeriodFromGrantedServer=" + Arrays.toString(validPeriodFromGrantedServer) + "}";
     }
 }

@@ -17,19 +17,18 @@ import java.net.Socket;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AuthenticationServer {
     private static final int PORT = ApplicationProperties.AUTHENTICATION_SERVER_PORT;
+    private static final java.util.logging.Logger LOGGER = Logger.getLogger("com.something");
     private final long authServerId = ApplicationProperties.AUTH_SERVER_ID;
-    private long clientId;
     private final String grantedServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_AUTH_AND_GRANTED_SERVERS;
+    private long clientId;
     private String clientSharedKey;
     private ServerSocket serverSocket;
-    private static final java.util.logging.Logger LOGGER = Logger.getLogger("com.something");
 
     public AuthenticationServer() {
         try {
@@ -42,6 +41,11 @@ public class AuthenticationServer {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void main(String[] args) {
+        AuthenticationServer authenticationServer = new AuthenticationServer();
+        authenticationServer.start();
     }
 
     public void start() {
@@ -96,12 +100,6 @@ public class AuthenticationServer {
             IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
             NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
 
-//        LOGGER.fine("timeStamp = " + Arrays.toString(request.timeStampFromClient()));
-//        LOGGER.fine("decrypted timeStamp = " + CoderUtils.decryptToLong(request.timeStampFromClient(), clientSharedKey));
-//        LOGGER.fine("encrypted timeStamp = " + Arrays.toString(CoderUtils.encryptLong(
-//                CoderUtils.decryptToLong(request.timeStampFromClient(), clientSharedKey),
-//                clientSharedKey
-//        )));
         return new AuthenticationServerResponse(
                 CoderUtils.encryptLong(
                         CoderUtils.decryptToLong(request.timeStampFromClient(), clientSharedKey),
@@ -114,10 +112,5 @@ public class AuthenticationServer {
             BadPaddingException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException {
         clientId = CoderUtils.decryptToLong(request.clientIdFromGrantedServer(), grantedServerSharedKey);
         clientSharedKey = CoderUtils.decryptToKey(request.clientAndAuthServerSharesKeyFromGrantedServer(), grantedServerSharedKey);
-    }
-
-    public static void main(String[] args) {
-        AuthenticationServer authenticationServer = new AuthenticationServer();
-        authenticationServer.start();
     }
 }

@@ -15,12 +15,12 @@ public record GrantedServerResponse(
     @Override
     public String toString() {
         return "{"
-                + "clientAndAuthServerSharedKeyForClient=" + Arrays.toString(clientAndAuthServerSharedKeyForClient) + ", "
-                + "clientRandomNumberForClient=" + Arrays.toString(clientRandomNumberForClient) + ", "
-                + "validPeriodForClient=" + Arrays.toString(validPeriodForClient) + ", "
-                + "authServerIdForClient=" + Arrays.toString(authServerIdForClient) + ", "
-                + "clientAndAuthServerSharedKeyForServer=" + Arrays.toString(clientAndAuthServerSharedKeyForServer) + ", "
-                + "clientIdForServer=" + Arrays.toString(clientIdForServer) + ", "
+                + "clientAndAuthServerSharedKeyForClient=" + Arrays.toString(clientAndAuthServerSharedKeyForClient) + ", \n"
+                + "clientRandomNumberForClient=" + Arrays.toString(clientRandomNumberForClient) + ", \n"
+                + "validPeriodForClient=" + Arrays.toString(validPeriodForClient) + ", \n"
+                + "authServerIdForClient=" + Arrays.toString(authServerIdForClient) + ", \n"
+                + "clientAndAuthServerSharedKeyForServer=" + Arrays.toString(clientAndAuthServerSharedKeyForServer) + ", \n"
+                + "clientIdForServer=" + Arrays.toString(clientIdForServer) + ", \n"
                 + "validPeriodForServer=" + Arrays.toString(validPeriodForServer) + "}";
     }
 }

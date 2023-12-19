@@ -19,22 +19,19 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Client {
+    private static final Logger LOGGER = Logger.getLogger("com.something");
     private final long clientId = ApplicationProperties.CLIENT_ID;
     private final String grantedServerSharedKey = ApplicationProperties.SHARED_KEY_BETWEEN_CLIENT_AND_GRANTED_SERVER;
+    private final Socket authServerSocket;
+    private final Socket grantedServerSocket;
     private String authServerSharedKey;
-    private final int authServerPort = ApplicationProperties.AUTHENTICATION_SERVER_PORT;
-    private final int grantedServerPort = ApplicationProperties.GRANTED_SERVER_PORT;
-    private Socket authServerSocket;
-    private Socket grantedServerSocket;
     private long timeStamp;
-    private static final Logger LOGGER = Logger.getLogger("com.something");
 //    private static final Logger LOGGER = LogManager.getLogger();
 
     public Client() {
@@ -44,15 +41,20 @@ public class Client {
             LOGGER.addHandler(handler);
             LOGGER.setLevel(Level.ALL);
 
-            authServerSocket = new Socket(InetAddress.getLocalHost(), authServerPort);
-            grantedServerSocket = new Socket(InetAddress.getLocalHost(), grantedServerPort);
+            authServerSocket = new Socket(InetAddress.getLocalHost(), ApplicationProperties.AUTHENTICATION_SERVER_PORT);
+            grantedServerSocket = new Socket(InetAddress.getLocalHost(), ApplicationProperties.GRANTED_SERVER_PORT);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void authenticate() {
+    public static void main(String[] args) {
+        Client client = new Client();
+        client.authenticate();
+    }
 
+    public void authenticate() {
+        // Client must know authServerId
         final long authServerId = ApplicationProperties.AUTH_SERVER_ID;
 
         sendGrantedServerRequest(authServerId);
@@ -116,20 +118,6 @@ public class Client {
     private void sendAuthServerRequest(GrantedServerResponse response) {
         setTimeStamp();
         LOGGER.fine("Client || setting time stamp: " + timeStamp);
-
-
-//        try {
-//            LOGGER.fine("decrypt / ecnrypt timestamp: " + CoderUtils.decryptToLong(
-//                    CoderUtils.encryptLong(timeStamp, authServerSharedKey),
-//                    authServerSharedKey
-//            ));
-//        } catch (IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException |
-//                 NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
-//            throw new RuntimeException(e);
-//        }
-
-
-
         LOGGER.fine("Client || sending request to the Auth server");
 
         try {
@@ -175,10 +163,5 @@ public class Client {
                  NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static void main(String[] args) {
-        Client client = new Client();
-        client.authenticate();
     }
 }
